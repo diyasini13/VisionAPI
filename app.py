@@ -4,10 +4,11 @@ import os
 from PIL import Image , ImageDraw
 import io
 import auth_token
+import json
 
 
 # Set your Google Cloud credentials (replace with your actual path)
-os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/to/credentials.json"
+#os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/to/credentials.json"
 
 def app():
 
@@ -122,7 +123,9 @@ def app():
                         elif results is not None:
                             st.warning("No faces detected or an error occurred.")
 
-            
+                    if results:
+                        if st.button("Display JSON"):
+                            st.json(results)
 
 if __name__ == "__main__":
     auth_token.authentication();
