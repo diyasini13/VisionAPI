@@ -15,7 +15,8 @@ streamlit
 numpy
 opencv-python 
 streamlit_pdf_viewer
-google-cloud-documentai>=2.12
+
 python-dotenv==1.0.1
 PyJWT==2.8.0
 vertexai
+google-cloud-vision
