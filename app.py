@@ -62,7 +62,7 @@ def app():
             draw.line([x1, y1, x2, y2], fill=color, width=width)
         return image
 
-    def main():
+    def vision():
         st.title("Instant Object Detection: Vision API")
 
         uploaded_file = st.file_uploader("Upload an image", type=["jpg", "jpeg", "png"])
