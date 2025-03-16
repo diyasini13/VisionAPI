@@ -39,8 +39,7 @@ def authentication():
             return "Error"
 
     # Get the token from the query parameter
-    token = st.experimental_get_query_params().get("token", [""])[0]
-
+    token = st.query_params.get("token", "")
 
     if not token:
         st.error("Unauthorized access. Token not provided.")
@@ -173,5 +172,5 @@ def app():
                         st.json(results)
 
 if __name__ == "__main__":
-    auth_token.authentication();
+    authentication();
     app();
