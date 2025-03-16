@@ -9,6 +9,8 @@ import streamlit as st
 import jwt
 import os
 from dotenv import load_dotenv
+from google.oauth2 import id_token
+from google.auth.transport import requests
 
 # Set your Google Cloud credentials (replace with your actual path)
 #os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = "path/to/credentials.json"
@@ -17,36 +19,43 @@ from dotenv import load_dotenv
 load_dotenv()
 
 def authentication():
-    SECRET_KEY = os.getenv("SECRET_KEY", "default_secret_key")
+    GOOGLE_CLIENT_ID = "633630984866-qj00anvn6cu2kahus5ft1cnc4o8pe7dp.apps.googleusercontent.com"# Replace with your client ID
 
-    def decode_token(token):
+    def verify_token(token):
         try:
-            # Decode the token with the same secret key
-            payload = jwt.decode(token, SECRET_KEY, algorithms=["HS256"])
-            return payload
-        except jwt.ExpiredSignatureError:
-            return "Expired"
-        except jwt.InvalidTokenError:
-            return "Invalid"
+            # Verify the token with Google's servers
+            idinfo = id_token.verify_oauth2_token(token, requests.Request(), GOOGLE_CLIENT_ID)
 
-    # Get the token from query parameters
-    query_params = st.query_params
-    token = query_params.get("token", None)
+            # Check if the token is from the correct audience (your client ID)
+            if idinfo['aud'] != GOOGLE_CLIENT_ID:
+                raise ValueError('Wrong audience.')
+
+            return idinfo
+        except ValueError as e:
+            print(e)
+            return "Invalid"
+        except Exception as e:
+            print(e)
+            return "Error"
+
+    # Get the token from the query parameter
+    token = st.experimental_get_query_params().get("token", [""])[0]
+
 
     if not token:
         st.error("Unauthorized access. Token not provided.")
         st.stop()
 
-    # Decode the token
-    decoded = decode_token(token)
+    # Verify the token
+    decoded = verify_token(token)
 
-    if decoded == "Expired":
-        st.error("Token has expired. Please login again.")
-        st.stop()
-
-    elif decoded == "Invalid":
+    if decoded == "Invalid":
         st.error("Invalid token. Access denied.")
         st.stop()
+    elif decoded == "Error":
+        st.error("Error in token verification. Access denied.")
+        st.stop()
+    
 
 def detect_labels(image_content):
     """Detects labels in the provided image content."""
